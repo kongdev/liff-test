@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div>
+      <span id="loading"> Loading.... </span>
+      <div id="lineProfile" style="display: none">
+        <img
+          id="lingImage"
+          src="https://fastly.picsum.photos/id/360/100/100.jpg?hmac=ZNrsudZg4g4cxkMlaxUBR8KSc8HYRFHQsoiGy1UZ-SM"
+          width="100px"
+        />
+        <div id="lineName">hello name</div>
+        <div id="lineUID">UID : your uid</div>
+
+        <div>
+          <input id="lineMessage" type="text" />
+          <button onclick="sendMessage()">send message</button>
+        </div>
+      </div>
+      <button id="logout" onclick="logout()">logout</button>
+    </div>
+    <script
+      charset="utf-8"
+      src="https://static.line-scdn.net/liff/edge/versions/2.22.3/sdk.js"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.1/axios.min.js"
+      integrity="sha512-m9S8W3a9hhBHPFAbEIaG7J9P92dzcAWwM42VvJp5n1/M599ldK6Z2st2SfJGsX0QR4LfCVr681vyU5vW8d218w=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <script>
+      let userId = "";
+      const main = async () => {
+        await liff.init({
+          liffId: "2008687962-dLQiNVT9", // use own liff id
+        });
+        if (!liff.isLoggedIn()) {
+          liff.login();
+          return false;
+        }
+        const profile = await liff.getProfile();
+
+        // // show profile
+        lingImage.src = profile.pictureUrl;
+        lineName.innerText = profile.displayName;
+        lineUID.innerText = "UID : " + profile.userId;
+        lineProfile.style.display = "block";
+        loading.style.display = "none";
+        // collect userId
+        userId = profile.userId;
+
+        console.log("logged in", profile);
+      };
+
+      const logout = async () => {
+        liff.logout();
+        window.location.reload();
+      };
+
+      const sendMessage = async () => {
+        text = document.getElementById("lineMessage").value;
+
+        const data = {
+          userId,
+          messages: [
+            {
+              type: "text",
+              text,
+            },
+          ],
+        };
+        console.log("send", data);
+
+        const response = await axios.post(
+          "https://ac6c2f3d71ba.ngrok-free.app/send-message",
+          data
+        );
+        console.log("response", response.data);
+      };
+      main();
+    </script>
+  </body>
+</html>
