@@ -16,6 +16,15 @@ const headers = {
   Authorization: `Bearer ${LINE_CHANNEL_ACCESS_TOKEN}`,
 };
 
+app.post("/webhook", (req, res) => {
+  const { events } = req.body;
+  console.log("Received events:", events);
+  if (!events || events.length === 0) {
+    res.json({ messages: "ok" });
+  }
+  return;
+});
+
 app.post("/send-message", async (req, res) => {
   const { userId, messages } = req.body;
   const body = {
@@ -27,7 +36,7 @@ app.post("/send-message", async (req, res) => {
     const resp = await axios.post(`${LINE_BOT_API}/message/push`, body, {
       headers,
     });
-    console.log("Message sent:", resp.data);
+    // console.log("Message sent:", resp.data);
   } catch (error) {
     console.log("Error sending message:", error.response);
   }
